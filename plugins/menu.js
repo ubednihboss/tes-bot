@@ -1,69 +1,91 @@
 let handler  = async (m, { conn, usedPrefix: _p }) => {
   let preview = {}
   try {
-    preview = await global.conn.generateLinkPreview('https://github.com/Arya274/Arya-Bot')
+    if (!conn.menu) preview = await conn.generateLinkPreview('https://github.com/Nurutomo/wabot-aq')
+  } catch (e) {
+    if (!conn.menu) preview = await global.conn.generateLinkPreview('https://github.com/Nurutomo/wabot-aq')
   } finally {
-    let text =  conn.menu ? conn.menu.replace(/%p/g, _p) : `
-NFQ BOT 🤖
-➸ Prefix:  *「 ${_p} 」*
-➸ Status: *「 Online 」*
+    let exp = global.DATABASE.data.users[m.sender].exp
+    let name = conn.getName(m.sender)
+    let d = new Date
+    let locale = 'id-Id'
+    let weton = ['Pon','Wage','Kliwon','Legi','Pahing'][Math.floor(d / 84600000) % 5]
+    let week = d.toLocaleDateString(locale, { weekday: 'long' })
+    let date = d.toLocaleDateString(locale, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })
+    let time = d.toLocaleTimeString(locale, {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
+    })
+
+    let text =  conn.menu ? conn.menu
+      .replace(/%p/g, _p)
+      .replace(/%exp/g, exp)
+      .replace(/%name/g, name)
+      .replace(/%weton/g, weton)
+      .replace(/%week/g, week)
+      .replace(/%date/g, date)
+      .replace(/%time/g, time): `
+• ----- *Menu* ----- •
+Hi, ${name}!
+Exp: ${exp}
+_${time} ${week} ${weton}, ${date}_
 ${more.repeat(1000)}
-╔═════✪〘 Miku 〙✪═════
-║
-╠➥ Name : ${conn.getName(m.sender)}
-╠➥ Xp : 21
-║
-╠═════✪〘 Menu 〙✪═══
-║
-╠═〘 Xp 〙 ═
-╠➥ ${_p}leaderboard
-║
-╠═〘 Group 〙 ═
-╠➥ ${_p}add [nomor, nomor]
-╠➥ ${_p}promote [@tagmember]
-╠➥ ${_p}demote [@tagadmin]
-╠➥ ${_p}linkgrup
-╠➥ ${_p}pengumuman [text]
-╠➥ ${_p}hidetag [text]
-╠➥ ${_p}listonline
-╠➥ ${_p}kick @Member
-║
-╠═〘 About 〙 ═
-╠➥ ${_p}info
-╠➥ ${_p}jadibot
-╠➥ ${_p}berhenti
-║
-╠═〘 Fitnah 〙 ═
-╠➥ > conn.fakeReply(m.chat, '[text]', '6288235435804@s.whatsapp.net', '[text]')
-║
-╠═〘 Others 〙 ═
-╠➥ ${_p}stiker [caption]
-╠➥ ${_p}stiker [linkurl]
-╠➥ ${_p}bucin
-╠➥ ${_p}ssweb [LinkUrl]
-╠➥ ${_p}google [Pencarian]
-╠➥ ${_p}readmore [Text|Sembunyi]
-╠➥ ${_p}leaderboard
-╠➥ > return [Kode/Text]
-║
-╠═〘 OWNER 〙 ═
-╠➥ ${_p}bcgc [Text]
-╠➥ ${_p}setmenu [Text]
-╠➥ ${_p}grouplist
-╠➥ ${_p}cdeletechat
-╠➥ ${_p}deletechat group
-╠➥ ${_p}mutechat
-╠➥ ${_p}mutechat group
-║
-╠═〘 Info Owner 〙 ═
-╠➥ YouTobe: Drawl Nag
-╠➥ No : Wa.me/6288235435804
-╠═〘 Info Bot 〙 ═
-╠➥ Name : NFQ
-╠➥ Versi : 2.0
-╠➥ Author : @Nurotomo,
-║
-╠═〘 Info Github 〙 ═
++1 Exp/pesan biasa
++10 Exp/command
+
+Universal:
+${_p}menu
+${_p}qr <teks>
+${_p}stiker (caption)
+${_p}stiker <url>
+${_p}toimg (reply)
+${_p}bucin
+${_p}ssweb <url>
+${_p}sswebf <url>
+${_p}google <pencarian>
+${_p}googlef <pencarian>
+${_p}readmore <teks>|<sembunyi>
+
+Exp:
+${_p}leaderboard <jumlah user>
+
+Group:
+${_p}add nomor1,nomor2,dst
+${_p}kick @mention
+${_p}promote @mention
+${_p}demote @mention
+${_p}linkgrup
+${_p}pengumuman <teks>
+${_p}hidetag <teks>
+${_p}listonline [groupid]
+${_p}grouplist
+
+Experimental:
+${_p}jadibot [kode login jika ada / kosongin]
+${_p}berhenti
+${_p}getcode
+
+Owner Nomor:
+${_p}bcgc <teks>
+${_p}setmenu <teks> (Semua tanda %p diubah menjadi prefix bot)
+${_p}deletechat (chat ini)
+${_p}deletechat group (semua grup kecuali yang di pin)
+${_p}mutechat (chat ini)
+${_p}mutechat group (semua grup kecuali yang di pin)
+Advanced:
+> return m
+
+• ----- Info ----- •
+Coded using *Vim* on Android \\w Termux
+by *@Nurutomo*
+https://github.com/Nurutomo/wabot-aq
+Request/Tanya Fitur: https://t.me/wabotermux
+• ---------------- •
 `.trim()
     conn.reply(m.chat, {...preview, text}, m)
   }
