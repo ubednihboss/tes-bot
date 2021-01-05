@@ -12,9 +12,14 @@ global.conn = new WAConnection()
 global.timestamp = {
   start: new Date
 }
+global.DATABASE = new (require('./lib/database'))('database.json', null, 2)
+if (!global.DATABASE.data.users) global.DATABASE.data = {
+  users: {},
+  groups: {}
+}
 
 let opts = yargs(process.argv.slice(2)).exitProcess(false).parse()
-let prefix = new RegExp('^[' + (opts['prefix'] || '\\/i!#$%.') + ']')
+global.prefix = new RegExp('^[' + (opts['prefix'] || '\\/i!#$%\\-+£¢€¥^°=¶∆×÷π√✓©®:;?&.') + ']')
 
 let authFile = `${opts._[0] || 'session'}.data.json`
 fs.existsSync(authFile) && conn.loadAuthInfo(authFile)
@@ -24,13 +29,30 @@ conn.on('credentials-updated', () => fs.writeFileSync(authFile, JSON.stringify(c
 conn.handler = async function (m) {
   try {
   	simple.smsg(this, m)
+    m.exp = 1
+    if (!m.fromMe && opts['self']) return
     if (!m.text) return
     if (m.isBaileys) return
+    try {
+      global.DATABASE.load()
+      if (global.DATABASE._data.users[m.sender]) {
+        if (typeof global.DATABASE._data.users[m.sender].exp == 'number' &&
+          !isNaN(global.DATABASE._data.users[m.sender].exp)
+        ) global.DATABASE._data.users[m.sender].exp++
+        else global.DATABASE._data.users[m.sender].exp = 1
+      } else global.DATABASE._data.users[m.sender] = {
+        exp: 1
+      }
+    } catch (e) {
+      console.log(e, global.DATABASE.data)
+    } finally {
+      global.DATABASE.save()
+    }
   	let usedPrefix
   	for (let name in global.plugins) {
   	  let plugin = global.plugins[name]
       if (!plugin) continue
-      let _prefix = plugin.customPrefix ? plugin.customPrefix : prefix
+      let _prefix = plugin.customPrefix ? plugin.customPrefix : conn.prefix ? conn.prefix : global.prefix
   	  if ((usedPrefix = (_prefix.exec(m.text) || '')[0])) {
   		  let args = m.text.replace(usedPrefix, '').split` `.filter(v=>v)
   		  let command = (args.shift() || '').toLowerCase()
@@ -74,13 +96,19 @@ conn.handler = async function (m) {
           continue
         }
 
-        await plugin(m, { usedPrefix, args, command, conn: this }).catch(e => this.reply(m.chat, util.format(e), m))
         m.isCommand = true
+        m.exp += 'exp' in plugin ? parseInt(plugin.exp) : 10
+        await plugin(m, { usedPrefix, args, command, conn: this }).catch(e => this.reply(m.chat, util.format(e), m))
   			break
   		}
   	}
   } finally {
+    //console.log(global.DATABASE._data.users[m.sender])
+    if (m && m.sender && global.DATABASE._data.users[m.sender]) {
+      global.DATABASE._data.users[m.sender].exp += m.exp
+    }
     try {
+      await global.DATABASE.save()
       require('./lib/print')(m, this)
     } catch (e) {
       console.log(m, e)
@@ -89,7 +117,7 @@ conn.handler = async function (m) {
 }
 
 conn.on('message-new', conn.handler) 
-
+conn.on('error', conn.logger.error)
 global.mods = []
 global.prems = []
 
@@ -100,7 +128,7 @@ global.dfail = (type, m, conn) => {
     premium: 'Perintah ini hanya untuk member Premium!',
     group: 'Perintah ini hanya dapat digunakan di Grup!',
     private: 'Perintah ini hanya dapat digunakan di Chat Pribadi!',
-    admin: 'Anda bukan admin grup!',
+    admin: 'Perintah ini hanya untuk admin grup!',
     botAdmin: 'Jadikan bot sebagai admin untuk menggunakan perintah ini!'
   }[type]
   msg && conn.reply(m.chat, msg, m)
@@ -110,6 +138,7 @@ global.dfail = (type, m, conn) => {
   global.timestamp.connect = new Date
 })
 opts['test'] && process.stdin.on('data', chunk => conn.emit('message-new', { text: chunk.toString() }))
+process.on('uncaughtException', console.error)
 // let strQuot = /(["'])(?:(?=(\\?))\2.)*?\1/
 
 let pluginFilter = filename => /\.js$/.test(filename)
