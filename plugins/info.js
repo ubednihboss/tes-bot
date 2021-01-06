@@ -1,31 +1,28 @@
 let handler  = async (m, { conn, usedPrefix: _p }) => {
   conn.reply(m.chat, `
-♻ INFO BOT! :
-
-*AUTHOR*: NAGA SQUAD PRODUCTION
-*DESIGNER*: NUROTOMO
-*YOUTUBE*: DRAWL NAG
-
-♻ INFO LAIN! :
-
-OH IYA SCRIPT INI 100% GRATIS KOK.
-SCRIPT DIBUAT DENGAN BAHASA PEMROGRAMAN NODE.JS
-*Jika ada yang menjual belikan akan saya matikan*
-UPDATE BOT TERBARU DI YOUTUBE DRAWL NAG
-
-♻️ JANGAN  LUPA DONASI AGAR BOT AKTIF TERUS!
-KIRIM KE 0813-5730-2007 [Tsel,Gopay]
-
-♻️ _TETAP JAGA KESEHATAN DAN SELALU PAKAI MASKER!_
-*WAJIB : AMAN,IMAN,IMUN...*
-
-SPESIAL THANKS TO:
->ST4RZ
->FCIABDUL
->NUROTOMO
->MHANKBARBAR
->MFARELS
->DAN KAWAN YANG LAIN [penuh gbisa sebutin]
+╠═〘 INFO BOT 〙 ═
+╠➥ Dibuat dengan bahasa javascript via NodeJs
+╠➥ Rec: Drawl Nag
+╠➥ Script: @Nurotomo
+║
+╠➥ Github: https://github.com/Arya274/Arya-Bot
+╠➥ Instagram: @arpunchs
+╠➥ YouTube: Drawl Nag
+║
+╠═〘 Thanks To 〙 ═
+╠➥ Nurotomo
+╠➥ MfarelS
+╠➥ ST4RZ
+╠➥ Dan kawan yang lain :)
+║
+╠═〘 DONASI 〙 ═
+╠➥ SmartFren: 0882-3543-5804
+╠➥ Tsel: 0813-5730-2007
+╠➥ Tsel: 0815-1586-0089
+║
+║>Request? Wa.me/6288235435804
+║
+╠═〘 NfQ BOT 〙 ═
 `.trim(), m)
 }
 handler.command = /^(info)$/i
